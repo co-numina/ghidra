@@ -341,7 +341,7 @@ function OriginSection() {
               Ghidra is a software reverse engineering framework developed by NSA Research.
               Released as open source in 2019, it has become the industry standard for
               binary analysis — used by security researchers, malware analysts, and CTF
-              teams worldwide. The decompilation engine is theirs. The hosted service is ours.
+              teams worldwide. We wrapped it in hosted infrastructure and an API layer.
             </p>
           </div>
           <div className="flex flex-col gap-3 min-w-[200px]">
@@ -739,7 +739,7 @@ function Footer() {
         <div>
           <p className="text-sm text-zinc-300 font-medium mb-2">$GHIDRA</p>
           <p className="text-xs text-zinc-500 max-w-sm leading-relaxed">
-            The agency built the tool. The decompilation service is ours.
+            The agency built the tool. We built the service.
             Hosted binary analysis powered by Ghidra&apos;s open-source engine.
           </p>
         </div>
@@ -785,7 +785,7 @@ export default function Home() {
         <p className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Hosted Binary Analysis</p>
         <h1 className="text-3xl md:text-4xl font-semibold text-zinc-100 mb-4 tracking-tight leading-tight max-w-2xl">
           The agency built the tool.<br />
-          The decompilation service is ours.
+          We built the service.
         </h1>
         <p className="text-sm text-zinc-400 leading-relaxed max-w-xl mb-8">
           Submit any binary. Get decompiled C source, control flow graphs, and
