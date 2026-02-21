@@ -784,7 +784,7 @@ export default function Home() {
         <img
           src="/dragon.png"
           alt=""
-          className="absolute right-[-60px] top-[-20px] w-[420px] h-auto opacity-[0.015] pointer-events-none select-none"
+          className="absolute right-[-60px] top-[-20px] w-[420px] h-auto opacity-[0.12] pointer-events-none select-none"
           aria-hidden="true"
         />
         <p className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Hosted Binary Analysis</p>
