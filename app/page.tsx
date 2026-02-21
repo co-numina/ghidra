@@ -290,8 +290,15 @@ function TopBar() {
     <header className="flex items-center justify-between px-5 py-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded bg-zinc-800 flex items-center justify-center border border-zinc-700">
-            <span className="mono text-sm font-bold text-zinc-300">G</span>
+          <div className="w-7 h-7 rounded bg-zinc-800 flex items-center justify-center border border-zinc-700 overflow-hidden">
+            <svg viewBox="0 0 32 32" className="w-5 h-5">
+              <g fill="#a1a1aa" transform="translate(2,2) scale(0.85)">
+                <path d="M8 28 Q6 22 8 16 Q10 12 12 10 L14 8 Q16 6 18 7 L20 8 Q22 7 23 8 L24 10 Q26 8 27 9 L28 11 Q30 10 30 12 Q30 14 28 15 L26 15 Q28 17 27 19 Q26 20 24 20 L22 19 Q20 22 16 24 Q12 27 8 28Z"/>
+                <circle cx="24" cy="13" r="1.5" fill="#ef4444"/>
+                <path d="M20 8 L18 3 Q19 4 21 5 L23 8" fill="#71717a"/>
+                <path d="M24 10 L23 5 Q24 6 26 7 L27 9" fill="#71717a"/>
+              </g>
+            </svg>
           </div>
           <span className="font-semibold text-zinc-200 text-sm tracking-tight">$GHIDRA</span>
         </Link>
