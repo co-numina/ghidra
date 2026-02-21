@@ -5,7 +5,7 @@ import Link from "next/link";
 
 // ── Constants ──────────────────────────────────────────────────────────
 
-const CA = "79kGppfU9Tu3uqKXHoYQrsB8hRgQtA2CaLBrJnVapump";
+const CA = "PASTE_CA_HERE";
 
 const HEX_LINES = [
   { addr: "00401000", bytes: "55 89 e5 83 ec 18", asm: "push   ebp; mov ebp,esp; sub esp,0x18" },
