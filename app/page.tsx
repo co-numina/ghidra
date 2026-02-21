@@ -42,10 +42,26 @@ const SAMPLE_BINARIES = [
 ];
 
 const STATS = [
-  { label: "Binaries Analyzed", value: "847,291" },
-  { label: "Functions Decompiled", value: "12.4M" },
-  { label: "Avg. Decompilation", value: "1.3s" },
-  { label: "Supported Architectures", value: "16" },
+  { label: "Binaries Analyzed", value: 847291, suffix: "", format: true },
+  { label: "Functions Decompiled", value: 12400000, suffix: "", format: true },
+  { label: "Avg. Decompilation", value: 1.3, suffix: "s", format: false },
+  { label: "Supported Architectures", value: 16, suffix: "", format: false },
+];
+
+// ── CFG data for the animated graph ────────────────────────────────────
+const CFG_NODES = [
+  { id: "entry", x: 200, y: 30, label: "entry", w: 80 },
+  { id: "init", x: 200, y: 100, label: "sum=0; i=1", w: 100 },
+  { id: "cmp", x: 200, y: 180, label: "i <= 10?", w: 90 },
+  { id: "body", x: 100, y: 260, label: "sum+=i; i++", w: 110 },
+  { id: "exit", x: 300, y: 260, label: "return sum", w: 100 },
+];
+const CFG_EDGES: [string, string, string][] = [
+  ["entry", "init", ""],
+  ["init", "cmp", ""],
+  ["cmp", "body", "true"],
+  ["cmp", "exit", "false"],
+  ["body", "cmp", "loop"],
 ];
 
 const ACCESS_TIERS = [
@@ -83,6 +99,171 @@ const FAQS = [
 ];
 
 // ── Components ─────────────────────────────────────────────────────────
+
+// ── Animated Counter ───────────────────────────────────────────────────
+function AnimatedStat({ value, suffix, label, format }: { value: number; suffix: string; label: string; format: boolean }) {
+  const [display, setDisplay] = useState("0");
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true;
+        const dur = 2000;
+        const step = 16;
+        const inc = value / (dur / step);
+        let cur = 0;
+        const iv = setInterval(() => {
+          cur += inc;
+          if (cur >= value) { cur = value; clearInterval(iv); }
+          const v = format ? Math.floor(cur).toLocaleString() : Number.isInteger(value) ? Math.floor(cur).toString() : cur.toFixed(1);
+          setDisplay(v);
+        }, step);
+      }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [value, format]);
+
+  return (
+    <div ref={ref} className="px-5 py-5 rounded-lg bg-zinc-900/50 border border-zinc-800">
+      <p className="text-2xl font-semibold text-zinc-100 mono mb-1">{display}{suffix}</p>
+      <p className="text-xs text-zinc-500">{label}</p>
+    </div>
+  );
+}
+
+// ── Control Flow Graph ────────────────────────────────────────────────
+function CFGVisualization() {
+  const [visibleNodes, setVisibleNodes] = useState(0);
+  const [visibleEdges, setVisibleEdges] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !started.current) {
+        started.current = true;
+        CFG_NODES.forEach((_, i) => {
+          setTimeout(() => setVisibleNodes(i + 1), i * 300);
+        });
+        CFG_EDGES.forEach((_, i) => {
+          setTimeout(() => setVisibleEdges(i + 1), CFG_NODES.length * 300 + i * 250);
+        });
+      }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const getNodeById = (id: string) => CFG_NODES.find(n => n.id === id)!;
+
+  return (
+    <div ref={ref} className="border border-zinc-800 rounded-lg bg-zinc-950 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/50">
+        <span className="text-xs text-zinc-500">Control Flow Graph — compute_sum</span>
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-500/60"></span>
+          <span className="text-xs text-zinc-600 mono">CFG</span>
+        </div>
+      </div>
+      <svg viewBox="0 0 400 340" className="w-full h-auto" style={{ maxHeight: 340 }}>
+        {/* Edges */}
+        {CFG_EDGES.map(([from, to, lbl], i) => {
+          if (i >= visibleEdges) return null;
+          const a = getNodeById(from);
+          const b = getNodeById(to);
+          const isLoop = lbl === "loop";
+          if (isLoop) {
+            // curved back-edge
+            return (
+              <g key={i}>
+                <path
+                  d={`M ${a.x - a.w/2} ${a.y + 15} C ${a.x - 80} ${a.y + 40}, ${b.x - 80} ${b.y - 20}, ${b.x - b.w/2} ${b.y}`}
+                  fill="none" stroke="#a78bfa" strokeWidth="1.5" strokeDasharray="4,3"
+                  className="cfg-edge"
+                />
+                <text x={a.x - 75} y={(a.y + b.y) / 2 + 20} className="text-[9px] fill-purple-400/60 mono">loop</text>
+              </g>
+            );
+          }
+          return (
+            <g key={i}>
+              <line x1={a.x} y1={a.y + 18} x2={b.x} y2={b.y - 18}
+                stroke={lbl === "true" ? "#4ade80" : lbl === "false" ? "#f87171" : "#52525b"}
+                strokeWidth="1.5" className="cfg-edge" />
+              {lbl && (
+                <text x={(a.x + b.x) / 2 + (lbl === "true" ? -20 : 10)} y={(a.y + b.y) / 2 + 5}
+                  className={`text-[9px] mono ${lbl === "true" ? "fill-emerald-400/60" : "fill-red-400/60"}`}>{lbl}</text>
+              )}
+            </g>
+          );
+        })}
+        {/* Nodes */}
+        {CFG_NODES.map((node, i) => {
+          if (i >= visibleNodes) return null;
+          return (
+            <g key={node.id} className="cfg-node">
+              <rect x={node.x - node.w / 2} y={node.y - 15} width={node.w} height={30}
+                rx="4" fill="#18181b" stroke={node.id === "cmp" ? "#a78bfa" : "#3f3f46"} strokeWidth="1" />
+              <text x={node.x} y={node.y + 4} textAnchor="middle"
+                className="text-[10px] fill-zinc-300 mono">{node.label}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// ── Hex Rain Background ───────────────────────────────────────────────
+function HexRain() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const chars = "0123456789abcdef";
+    const columns = Math.floor(canvas.width / 14);
+    const drops = Array.from({ length: columns }, () => Math.random() * -100);
+
+    const draw = () => {
+      ctx.fillStyle = "rgba(9,9,11,0.08)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "10px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const alpha = 0.03 + Math.random() * 0.04;
+        ctx.fillStyle = `rgba(161,161,170,${alpha})`;
+        ctx.fillText(char, i * 14, drops[i] * 14);
+        if (drops[i] * 14 > canvas.height && Math.random() > 0.98) {
+          drops[i] = 0;
+        }
+        drops[i] += 0.3 + Math.random() * 0.2;
+      }
+    };
+
+    const interval = setInterval(draw, 60);
+    return () => { clearInterval(interval); window.removeEventListener("resize", resize); };
+  }, []);
+
+  return (
+    <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-60" />
+  );
+}
 
 function CopyButton({ text, label }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -446,10 +627,7 @@ function StatsGrid() {
     <section className="px-5 md:px-10 py-14 max-w-6xl mx-auto">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {STATS.map((stat) => (
-          <div key={stat.label} className="px-5 py-5 rounded-lg bg-zinc-900/50 border border-zinc-800">
-            <p className="text-2xl font-semibold text-zinc-100 mono mb-1">{stat.value}</p>
-            <p className="text-xs text-zinc-500">{stat.label}</p>
-          </div>
+          <AnimatedStat key={stat.label} value={stat.value} suffix={stat.suffix} label={stat.label} format={stat.format} />
         ))}
       </div>
     </section>
@@ -597,7 +775,9 @@ function Footer() {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-zinc-950 relative">
+      <HexRain />
+      <div className="relative z-10">
       <TopBar />
 
       {/* Hero */}
@@ -624,11 +804,44 @@ export default function Home() {
 
       <OriginSection />
       <DecompilationDemo />
+      {/* CFG Visualization */}
+      <section className="px-5 md:px-10 py-14 max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <p className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Analysis Output</p>
+            <h2 className="text-xl font-semibold text-zinc-100">Control Flow Graph</h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <CFGVisualization />
+          <div className="border border-zinc-800 rounded-lg bg-zinc-950 p-5">
+            <p className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Function Metadata</p>
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Name</span><span className="text-zinc-300 mono">compute_sum</span></div>
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Basic Blocks</span><span className="text-zinc-300 mono">5</span></div>
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Edges</span><span className="text-zinc-300 mono">5 (1 back-edge)</span></div>
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Cyclomatic Complexity</span><span className="text-zinc-300 mono">2</span></div>
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Stack Frame</span><span className="text-zinc-300 mono">0x18 bytes</span></div>
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Calling Convention</span><span className="text-zinc-300 mono">cdecl</span></div>
+              <div className="flex justify-between text-sm"><span className="text-zinc-500">Cross-References</span><span className="text-zinc-300 mono">3 (main, test_sum, bench)</span></div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-zinc-800">
+              <p className="text-xs text-zinc-500 mb-2">Decompiler Confidence</p>
+              <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500/60 rounded-full" style={{ width: "94%" }}></div>
+              </div>
+              <p className="text-xs text-zinc-500 mt-1">94% — High confidence recovery</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <LiveFeed />
       <StatsGrid />
       <AccessTiers />
       <FAQ />
       <Footer />
+      </div>
     </div>
   );
 }
