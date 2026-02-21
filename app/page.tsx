@@ -290,7 +290,7 @@ function TopBar() {
     <header className="flex items-center justify-between px-5 py-3 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.svg" alt="" width={28} height={28} className="rounded" />
+          <img src="/dragon.png" alt="" width={28} height={28} className="rounded" style={{ filter: "brightness(1.3)" }} />
           <span className="font-semibold text-zinc-200 text-sm tracking-tight">$GHIDRA</span>
         </Link>
         <nav className="hidden md:flex items-center gap-4 text-xs text-zinc-500">
@@ -779,7 +779,14 @@ export default function Home() {
       <TopBar />
 
       {/* Hero */}
-      <section className="px-5 md:px-10 pt-16 pb-10 max-w-6xl mx-auto">
+      <section className="px-5 md:px-10 pt-16 pb-10 max-w-6xl mx-auto relative overflow-hidden">
+        {/* Dragon watermark */}
+        <img
+          src="/dragon.png"
+          alt=""
+          className="absolute right-[-60px] top-[-20px] w-[420px] h-auto opacity-[0.04] pointer-events-none select-none"
+          aria-hidden="true"
+        />
         <p className="text-xs text-zinc-500 uppercase tracking-widest mb-4">Hosted Binary Analysis</p>
         <h1 className="text-3xl md:text-4xl font-semibold text-zinc-100 mb-4 tracking-tight leading-tight max-w-2xl">
           The agency built the tool.<br />
