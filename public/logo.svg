@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="64" fill="#09090b"/>
+  <!-- Ghidra dragon eye — minimal geometric -->
+  <ellipse cx="256" cy="256" rx="160" ry="100" stroke="#4ade80" stroke-width="16" fill="none" opacity="0.8"/>
+  <!-- Pupil slit -->
+  <path d="M256 180 L272 256 L256 332 L240 256 Z" fill="#4ade80" opacity="0.9"/>
+  <!-- Corner accents -->
+  <line x1="80" y1="256" x2="120" y2="256" stroke="#4ade80" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+  <line x1="392" y1="256" x2="432" y2="256" stroke="#4ade80" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+</svg>
