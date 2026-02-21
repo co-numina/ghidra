@@ -793,7 +793,7 @@ export default function Home() {
           running on dedicated infrastructure. Token holders get priority access.
         </p>
         <div className="flex items-center gap-3">
-          <a href="#demo" className="px-5 py-2.5 text-sm rounded bg-zinc-100 text-zinc-900 font-medium hover:bg-zinc-200 transition-colors">
+          <a href="#demo" className="px-5 py-2.5 text-sm rounded bg-amber-500 text-zinc-950 font-semibold hover:bg-amber-400 transition-colors">
             Try Demo
           </a>
           <Link href="/docs" className="px-5 py-2.5 text-sm rounded border border-zinc-700 text-zinc-300 hover:bg-zinc-900 transition-colors">
